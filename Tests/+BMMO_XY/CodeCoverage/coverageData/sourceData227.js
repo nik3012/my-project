@@ -1,1 +1,0 @@
-var sourceData227 = {"FileContents":["function inCell = scaleCellArray(inCell, scale)\r","% Function to scale a cell array with a factor 'scale'\r","inCell = cellfun(@(x) scale * x, inCell, 'UniformOutput', false);\r","\r","end"],"CoverageData":{"CoveredLineNumbers":[],"UnhitLineNumbers":3,"HitCount":[0,0,0,0,0]}}

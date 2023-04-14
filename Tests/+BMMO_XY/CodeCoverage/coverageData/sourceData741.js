@@ -1,1 +1,0 @@
-var sourceData741 = {"FileContents":["function bmmo_fprintf(varargin)\r","\r","show_output = varargin{1};\r","if show_output > 0\r","    fprintf(show_output, varargin{2:end});\r","end\r","\r",""],"CoverageData":{"CoveredLineNumbers":[3,4],"UnhitLineNumbers":5,"HitCount":[0,0,4,4,0,0,0,0]}}

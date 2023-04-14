@@ -1,1 +1,0 @@
-var sourceData759 = {"FileContents":["function [line1, line2] = bmmo_print_expinfo(expinfo)\r","\r","line1 = ['expinfo.xc = [' num2str(expinfo.xc', 9) '];'];\r","line2 = ['expinfo.yc = [' num2str(expinfo.yc', 9) '];'];\r",""],"CoverageData":{"CoveredLineNumbers":[],"UnhitLineNumbers":[3,4],"HitCount":[0,0,0,0,0]}}
