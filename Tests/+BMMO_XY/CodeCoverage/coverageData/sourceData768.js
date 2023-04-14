@@ -1,0 +1,1 @@
+var sourceData768 = {"FileContents":["function result = bmmo_testdata_root()\r","% Return the location of test data.\r","\r","\r","result = [fileparts(mfilename('fullpath')) filesep '..' filesep 'testData'];\r","\r","end\r",""],"CoverageData":{"CoveredLineNumbers":5,"UnhitLineNumbers":[],"HitCount":[0,0,0,0,107,0,0,0]}}

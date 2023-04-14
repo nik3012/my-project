@@ -1,0 +1,3 @@
+function bmmo_write_adelmetrology_mex_build
+
+mex bmmo_write_adelmetrology_mex.cpp

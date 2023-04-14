@@ -1,0 +1,10 @@
+*.asv
+*.mat
+*.zip
+*.gz
+*.tlg
+*.exe
+*.xml
+decrypterConfiguration.json
+!info.xml
+!helptoc.xml

@@ -1,0 +1,122 @@
+name: "matlab"
+
+on:
+  push:
+
+  pull_request:
+
+  workflow_dispatch:
+
+env:
+  TMPDIR: ${{ github.WORKSPACE }}/tmp
+  CADENV_HOME: ${{ github.WORKSPACE }}/caddir
+  PYTHONPATH: ${{ github.WORKSPACE }}/caddir/cadlib:lib/python:bin/python
+  MATLAB_ASML_USERPATH: ${{ github.WORKSPACE }}/matlab/userpath
+  MATLAB_BASE_PREFDIR: ${{ github.WORKSPACE }}/matlab/prefdir
+  MATLAB_PREFDIR: ${{ github.WORKSPACE }}/matlab/prefdir/R2018b
+  BMMO_XY_DECRYPT_DEBUG: TRUE
+  GIT_SSH_COMMAND: "ssh -i ${{ github.WORKSPACE }}/.ssh/private.key -o UserKnownHostsFile=${{ github.WORKSPACE }}/.ssh/known_hosts -o IdentitiesOnly=yes"
+
+jobs:
+  ci-test:
+    runs-on: scanner
+    steps:
+      - name: Setting up additional environment variables
+        run: |
+          #
+          # Setup the environment variables that cannot be set in the env section
+          echo "LD_LIBRARY_PATH=${{ github.WORKSPACE }}/caddir/cadlib:/lib/:/lib64/:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
+          echo "PATH=${{ github.WORKSPACE }}/caddir/cadbin/:/cadappl/bin/:${PATH}" >> $GITHUB_ENV
+
+      - name: Setting up directories
+        run: |
+          #
+          # Setup temporary directory
+          mkdir -p ${TMPDIR}
+          chmod 1755 $TMPDIR
+
+          # Setup cadenv directory
+          rm -rf "${CADENV_HOME}"
+          mkdir -p ${CADENV_HOME}
+
+          # Setup Matlab directories
+          rm -rf ~/Documents/MATLAB
+          mkdir -p ${MATLAB_BASE_PREFDIR}
+          mkdir -p ${MATLAB_ASML_USERPATH}
+          chmod 1755 ${MATLAB_BASE_PREFDIR}
+          chmod 1755 ${MATLAB_ASML_USERPATH}
+      
+      - name: Setting up SSH keys
+        run: |
+          #
+          # Add github to the known hosts
+          mkdir -p ${{ github.WORKSPACE }}/.ssh
+          ssh-keyscan -v gh.asml.com >> ${{ github.WORKSPACE }}/.ssh/known_hosts
+
+          # Add the private key to the system
+          echo "${{ secrets.DE_OVERLAY_MODELS_P_CODE_RELEASE }}" >> ${{ github.WORKSPACE }}/.ssh/private.key
+          chmod 700 ${{ github.WORKSPACE }}/.ssh/private.key
+      
+      - name: Checkout baseliner-toolbox-euv-ovl
+        uses: actions/checkout@v3
+        with:
+          path: ${{ github.WORKSPACE }}/${{ github.event.repository.name }}
+          lfs: true
+      
+      - name: Checkout DE_Overlay_Models
+        run: |
+          #
+          # Checkout the main branch of asml-gh/DE_Overlay_Models_P_Code_Release
+          git clone --branch main git@gh.asml.com:asml-gh/DE_Overlay_Models_P_Code_Release.git ${{ github.WORKSPACE }}/DE_Overlay_Models
+
+      - name: Setup decryption configuration file
+        run: |
+          #
+          echo '{"decrypterExecutable":"NOT PROVIDED","token":"${{ secrets.DECRYPTER_TOKEN }}","comment":"Baseliner_Overlay_EUV"}' >> ${{ github.WORKSPACE }}/${{ github.event.repository.name }}/decrypterConfiguration.json
+
+      - name: Installing matlab 2018b.u8
+        run: |
+          #
+          # Install Matlab via cadenv
+          cadenv -r 2018b.u8 matlab
+          cadenv -r 4.9.3 gcc
+          cadenv -r 7.85.0 curl
+
+          # Configure the userpath with matlab -r (as it doesn't work with -batch)
+          matlab -nodisplay -nosplash -nodesktop -r "upath = getenv('MATLAB_ASML_USERPATH'); userpath(upath); rehash toolboxcache; exit"
+
+#      - name: Compile MEX binaries
+#        run: |
+#          #
+#          # Enter the working directory
+#          cd ${{ github.WORKSPACE }}/${{ github.event.repository.name }}
+#
+#          # Build the MEX binaries
+#          matlab -batch "BMMO_XY.tools.xml.buildMexBinaries();"
+
+      - name: Run Matlab tests
+        run: |
+          #
+          # Enter the working directory
+          cd ${{ github.WORKSPACE }}/${{ github.event.repository.name }}
+
+          # Run the testsuites
+          if [ ${GITHUB_REF##*/} = 'main' ] || [ ${GITHUB_REF##*/} = 'develop' ]; then
+            # Run the extended set
+            matlab -batch "module.runtests(pwd, 'whichTests', 'extended', 'useParallel', true);"      
+          else
+            # Run the base set
+            matlab -batch "module.runtests(pwd, 'whichTests', 'base', 'useParallel', true);"
+          fi  
+      
+      - name: Deleting files in workspace
+        if: always()
+        run: |
+          #
+          # Remove the newly created directories
+          rm -rf ${{ github.WORKSPACE }}/.ssh/private.key
+          rm -rf ${{ github.WORKSPACE }}/.ssh/known_hosts
+          rm -rf "${CADENV_HOME}"
+          rm -rf "${TMPDIR}"
+          rm -rf "${MATLAB_BASE_PREFDIR}"
+          rm -rf "${MATLAB_ASML_USERPATH}"

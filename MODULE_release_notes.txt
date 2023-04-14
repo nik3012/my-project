@@ -1,0 +1,74 @@
+Release notes of BMMO-XY module
+===============================
+R2023_02_16
+-----------
+o Introduce population tooling
+o Added and modified Livescripts/demos (i.e. population tooling and rerun simulation)
+o Included OPO decorrection tooling
+o Removed unused old toolbox functionalities
+
+R2022_08_01
+-----------
+o Fixed a bug in bmmo_kt_expinfo_from_ler and bmmo_read_lcp_zip: this now correctly supports ADELlers with multiple images.
+  This fix was prompted by an error reading in a job zip from SK Hynix.
+
+R2022_07_07
+-----------
+o Fixed bugs in OPO (de)correction tooling (bmmo_apply_SBC_to_opo_ml) based on CS requests
+
+R2022_05_06
+-----------
+o Added functionality to (de)correct OPO overlay data 
+  with SBC corrections (bmmo_apply_SBC_to_opo_ml)
+o Added new rerun and self correction tooling which simulates TS actuation behaviour
+  (see bmmo_RerunTsActuation & bmmo_SelfCorrectTsActuation)
+o Updated bmmo_load_ADEL (used by bmmo_read_lcp_zip)
+    o Provides support for IDAT parsing
+    o Provides support for decryption on Linux
+    o Does not save decrypted files by default
+    o Will prompt to save a decryptorConfiguration.json 
+      file the first time it is used; for more information see 
+      bmmo_load_ADEL.pdf in the Help folder
+
+R2021_11_01
+-----------
+
+o updated Inline SDM model for spline actuation (TS SP20,3600D full package)
+o Fixed bmmo_read_lcp_zip for SKH ADELer parsing issue and ignoring previous
+  job report from LIS zips (LIS SP23).
+o Updated the toolbox to read in ADELsbc report version 11 to process Inline SDM model info
+o Added new MATLAB documentaton and live scripts for Baseliner toolbox (Help folder)
+  
+R2021_07_12
+-----------
+
+o updated location of the Basics toolbox for Windows as per request from IT
+ (new location uses DFS). 
+o updated one of the module owners in MODULE_conf
+
+R2021_04_23
+-----------
+
+o Fix for Inline SDM simulation
+
+R2021_04_09
+-----------
+
+o Functions parsing sbc rep now robust wrt double corrections issue (P516671)
+o Automatically set intrafield modelling and reporting from JobReport
+o Removed unused 'sequence' input from bmmo_convergence_run
+
+
+R2021_03_03
+-----------
+
+o Added parsing and using of ADELsbcOverlayDriftControlNxerepProtected 
+  when available in the zip file
+o Bugfix: bmmo_apply_SBC_to_ml_inline_SDM now works for reticle layouts
+          other than 13x19
+
+
+R2020_11_03
+-----------
+o BL3 compatibility
+o Dependency toward ADELdecryptor SW when reading in BL3 zip
